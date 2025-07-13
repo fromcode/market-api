@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -31,8 +30,7 @@ func main() {
 		Handler: router,
 	}
 
-	slog.Info("Server mulai %s", slog.String("address", cfg.Addr))
-	fmt.Printf("Server mulai %s", cfg.HTTPServer.Addr) //Print pertanda dimulai server beserta portnya
+	slog.Info("Server mulai", slog.String("address", cfg.Addr)) //Print pertanda dimulai server beserta portnya
 
 	done := make(chan os.Signal, 1)
 
@@ -50,14 +48,11 @@ func main() {
 	slog.Info("Matikan Server")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-
 	defer cancel()
 
-	err := server.Shutdown(ctx)
-	if err != nil {
+	if err := server.Shutdown(ctx); err != nil {
 		slog.Error("Gagal mematikan server", slog.String("error", err.Error()))
 	}
 
 	slog.Info("Server berhasil dimatikan")
-
 }
