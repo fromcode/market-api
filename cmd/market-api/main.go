@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/fromcode/market-api/internal/config"
+	"github.com/fromcode/market-api/internal/http/handlers/market"
 )
 
 func main() {
@@ -20,9 +21,7 @@ func main() {
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) { //mengatur handler pada url "/"
-		w.Write([]byte("Selamat datang di Market API"))
-	})
+	router.HandleFunc("POST /api/markets", market.New())
 	// setup server
 
 	server := http.Server{ //bawaan package http.Server
