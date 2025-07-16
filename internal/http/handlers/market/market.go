@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 
 	"github.com/fromcode/market-api/internal/types"
 	"github.com/fromcode/market-api/internal/utils/response"
+	"github.com/go-playground/validator/v10"
 )
 
 func New() http.HandlerFunc {
@@ -34,9 +34,12 @@ func New() http.HandlerFunc {
 		}
 
 		//request validations
+		if err := validator.New().Struct(market); err != nil {
 
-		// Pesan ini menandakan bahwa proses untuk "Membuat Product Baru" sedang dimulai.
-		slog.Info("Membuat Product Baru")
+			validateErrs := err.(validator.ValidationErrors)
+			response.WriteJson(w, http.StatusBadRequest, response.ValidateError(validateErrs))
+			return
+		}
 
 		response.WriteJson(w, http.StatusCreated, map[string]string{"succes": "OK"})
 	}

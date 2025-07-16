@@ -2,7 +2,7 @@ package types
 
 type Markets struct {
 	Id   int
-	Name string
-	Type string
-	Size int
+	Name string `validate:"required"`
+	Type string `validate:"required"`
+	Size int    `validate:"required"`
 }
