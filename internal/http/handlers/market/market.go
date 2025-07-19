@@ -5,14 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 
+	"github.com/fromcode/market-api/internal/storage"
 	"github.com/fromcode/market-api/internal/types"
 	"github.com/fromcode/market-api/internal/utils/response"
 	"github.com/go-playground/validator/v10"
 )
 
-func New() http.HandlerFunc {
+func New(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) { //mengatur handler pada url
 		var market types.Markets
 
@@ -41,6 +43,19 @@ func New() http.HandlerFunc {
 			return
 		}
 
-		response.WriteJson(w, http.StatusCreated, map[string]string{"succes": "OK"})
+		LastId, err := storage.CreateProduct(
+			market.Name,
+			market.Type,
+			market.Size,
+		)
+
+		slog.Info("Sukses membuat product", slog.String("UserId", fmt.Sprint(LastId)))
+
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		response.WriteJson(w, http.StatusCreated, map[string]int64{"id": LastId})
 	}
 }

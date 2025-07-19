@@ -20,7 +20,7 @@ func New(cfg *config.Config) (*Sqlite, error) {
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS products (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT,
-		type TEXT
+		types TEXT,
 		size INTEGER
 	)`)
 
@@ -31,4 +31,25 @@ func New(cfg *config.Config) (*Sqlite, error) {
 	return &Sqlite{
 		Db: db,
 	}, nil
+}
+
+func (s *Sqlite) CreateProduct(name string, types string, size int) (int64, error) {
+	stmt, err := s.Db.Prepare("INSERT INTO products (name, types, size) VALUES(?, ?, ?)")
+	if err != nil {
+		return 0, nil
+	}
+
+	defer stmt.Close()
+
+	result, err := stmt.Exec(name, types, size)
+	if err != nil {
+		return 0, nil
+	}
+
+	lastId, err := result.LastInsertId()
+	if err != nil {
+		return 0, nil
+	}
+
+	return lastId, nil
 }

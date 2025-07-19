@@ -19,7 +19,7 @@ func main() {
 	// load config
 	cfg := config.MustLoad()
 	// database setup
-	_, err := sqlite.New(cfg)
+	storage, err := sqlite.New(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,7 +28,7 @@ func main() {
 	// setup router
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /api/markets", market.New())
+	router.HandleFunc("POST /api/markets", market.New(storage))
 	// setup server
 
 	server := http.Server{ //bawaan package http.Server
