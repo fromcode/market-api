@@ -2,8 +2,10 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/fromcode/market-api/internal/config"
+	"github.com/fromcode/market-api/internal/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -52,4 +54,25 @@ func (s *Sqlite) CreateProduct(name string, types string, size int) (int64, erro
 	}
 
 	return lastId, nil
+}
+
+func (s *Sqlite) GetProductsById(id int64) (types.Markets, error) {
+	stmt, err := s.Db.Prepare("SELECT id, name, types, size FROM products WHERE id = ? LIMIT 1")
+	if err != nil {
+		return types.Markets{}, err
+	}
+
+	defer stmt.Close()
+
+	var market types.Markets
+
+	err = stmt.QueryRow(id).Scan(&market.Id, &market.Name, &market.Type, &market.Size)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return types.Markets{}, fmt.Errorf("product tidak ditemukan %s", fmt.Sprint(id))
+		}
+		return types.Markets{}, fmt.Errorf("query error: %w", err)
+	}
+
+	return market, nil
 }

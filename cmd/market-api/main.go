@@ -29,6 +29,7 @@ func main() {
 	router := http.NewServeMux()
 
 	router.HandleFunc("POST /api/markets", market.New(storage))
+	router.HandleFunc("GET /api/markets/{id}", market.GetById(storage))
 	// setup server
 
 	server := http.Server{ //bawaan package http.Server
